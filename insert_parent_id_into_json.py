@@ -112,3 +112,23 @@ def update_json_files(file_names: list, csv_data: DataFrame) -> None:
 
         # Write updated JSON data to a new file
         write_json_file(updated_json, f'updated_{file_name}')
+
+
+if __name__ == '__main__':
+
+    csv_file = 'EXP_ObjectID_HostID.csv'
+    dtype = {
+        'Image1_Object_ID': str,
+        'Image2_Object_ID': str,
+        'Image3_Object_ID': str,
+        'Host_ID': str,
+    }
+    dropna = ['Object_ID', 'Host_ID']
+    csv_data = read_csv(csv_file, dtype, dropna)
+
+    files = [
+        '3d3fde25-fc47-47ad-bda4-0b438196045b.json',
+        '763fdd40-9408-45bb-b532-3f90b5c7c5d1.json',
+        'b73070b3-7625-4975-872a-967b2297a458.json',
+    ]
+    update_json_files(files, csv_data)

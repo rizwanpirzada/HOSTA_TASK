@@ -63,3 +63,52 @@ def write_json_file(data: dict, filename: str) -> None:
     '''
     with open(filename, 'w') as f:
         json.dump(data, f, indent=2)
+
+
+def add_parent_id_to_object(json_data: dict, csv_df: DataFrame) -> dict:
+    '''
+    Add parent IDs to objects in the JSON data based on matching object IDs in the CSV DataFrame.
+
+    Parameters:
+        json_data (dict): The JSON data containing objects.
+        csv_df (DataFrame): The DataFrame containing CSV data with Image Object IDs.
+
+    Returns:
+        dict: The updated JSON data with parent IDs added to objects.
+    '''
+    for obj in json_data['ops_3d']:
+        object_id = obj['item_id']
+
+        for i in range(1, 4):
+            parent_id = csv_df[csv_df[f'Image{i}_Object_ID'] == str(object_id)][
+                'Host_ID'
+            ]
+            if not parent_id.empty:
+                obj['parent_id'] = parent_id.to_string().split()[-1]
+                break
+
+    return json_data
+
+
+def update_json_files(file_names: list, csv_data: DataFrame) -> None:
+    '''
+    Update multiple JSON files with parent IDs based on CSV data.
+
+    Parameters:
+        file_names (list of str): A list of paths to the JSON files to be updated.
+        csv_data (Data frame): Pandas Data frame containing data used to update the JSON files.
+
+    Returns:
+        None
+    '''
+
+    # Iterate over each JSON file
+    for file_name in file_names:
+        # Read JSON data from the file
+        data = read_json_file(file_name)
+
+        # Add parent IDs to JSON data based on CSV data
+        updated_json = add_parent_id_to_object(data, csv_data)
+
+        # Write updated JSON data to a new file
+        write_json_file(updated_json, f'updated_{file_name}')
